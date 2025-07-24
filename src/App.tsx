@@ -22,7 +22,9 @@ function App() {
     size_column: 'size',
     size_min: 3,
     size_max: 25,
-    category_bins: 5
+    category_bins: 5,
+    opacity: 0.7,
+    hover_fields: []
   })
   const [columns, setColumns] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
@@ -43,6 +45,13 @@ function App() {
       }
       if (config.size_column) {
         point.size = row[config.size_column]
+      }
+      
+      // Add all hover fields to the data point
+      if (config.hover_fields) {
+        config.hover_fields.forEach((field: string) => {
+          point[field] = row[field]
+        })
       }
       
       return point

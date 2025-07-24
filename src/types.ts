@@ -15,6 +15,8 @@ export interface ChartConfig {
   size_min?: number
   size_max?: number
   category_bins?: number
+  opacity?: number
+  hover_fields?: string[]
 }
 
 export interface ColumnInfo {

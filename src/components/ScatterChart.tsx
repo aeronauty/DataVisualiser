@@ -38,12 +38,25 @@ const ScatterChart: React.FC<ScatterChartProps> = ({ data, config }) => {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length > 0) {
       const data = payload[0].payload
+      const hoverFields = config.hover_fields || []
+      
       return (
         <div className="scatter-tooltip">
-          <p><strong>X:</strong> {data.x?.toFixed(2)}</p>
-          <p><strong>Y:</strong> {data.y?.toFixed(2)}</p>
-          {config.category_column && <p><strong>Category:</strong> {data.category}</p>}
-          {config.size_column && <p><strong>Size:</strong> {data.size?.toFixed(2)}</p>}
+          <p><strong>{config.x_column}:</strong> {data.x?.toFixed(2)}</p>
+          <p><strong>{config.y_column}:</strong> {data.y?.toFixed(2)}</p>
+          {config.category_column && <p><strong>{config.category_column}:</strong> {data.category}</p>}
+          {config.size_column && <p><strong>{config.size_column}:</strong> {data.size?.toFixed(2)}</p>}
+          {hoverFields.map(field => (
+            data[field] !== undefined && (
+              <p key={field}>
+                <strong>{field}:</strong> {
+                  typeof data[field] === 'number' 
+                    ? data[field].toFixed(2) 
+                    : data[field]
+                }
+              </p>
+            )
+          ))}
         </div>
       )
     }
@@ -108,7 +121,7 @@ const ScatterChart: React.FC<ScatterChartProps> = ({ data, config }) => {
                     cy={cy} 
                     r={radius} 
                     fill={COLORS[index % COLORS.length]}
-                    fillOpacity={0.7}
+                    fillOpacity={config.opacity || 0.7}
                     stroke={COLORS[index % COLORS.length]}
                     strokeWidth={1}
                   />

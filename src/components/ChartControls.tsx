@@ -1,6 +1,7 @@
 import React from 'react'
 import type { ChartConfig, ColumnInfo } from '../types'
 import RangeSlider from './RangeSlider'
+import MultiSelect from './MultiSelect'
 import { shouldUseBinning } from '../utils/dataUtils'
 
 interface ChartControlsProps {
@@ -129,6 +130,31 @@ const ChartControls: React.FC<ChartControlsProps> = ({
             />
           </div>
         )}
+
+        <div className="control-group">
+          <label htmlFor="opacity">Opacity: {Math.round((config.opacity || 0.7) * 100)}%</label>
+          <input
+            type="range"
+            id="opacity"
+            min="0.1"
+            max="1"
+            step="0.05"
+            value={config.opacity || 0.7}
+            onChange={(e) => onConfigChange({ 
+              opacity: parseFloat(e.target.value) 
+            })}
+          />
+        </div>
+
+        <div className="control-group">
+          <MultiSelect
+            options={allColumns.map(col => col.name)}
+            selectedValues={config.hover_fields || []}
+            onChange={(values) => onConfigChange({ hover_fields: values })}
+            label="Hover Information"
+            placeholder="Select fields to show on hover..."
+          />
+        </div>
       </div>
 
       <div className="config-summary">
@@ -147,6 +173,10 @@ const ChartControls: React.FC<ChartControlsProps> = ({
           )}
           {config.size_column && (
             <li><strong>Size:</strong> {config.size_column} (range: {config.size_min || 3}-{config.size_max || 25})</li>
+          )}
+          <li><strong>Opacity:</strong> {Math.round((config.opacity || 0.7) * 100)}%</li>
+          {config.hover_fields && config.hover_fields.length > 0 && (
+            <li><strong>Hover Fields:</strong> {config.hover_fields.join(', ')}</li>
           )}
         </ul>
       </div>
