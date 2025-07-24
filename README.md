@@ -66,13 +66,21 @@ DataVisualiser/
    ```
 
 2. **Install dependencies and start everything**
+   
+   **On macOS/Linux:**
    ```bash
    npm install
    ./start.sh
    ```
+   
+   **On Windows:**
+   ```bash
+   npm install
+   npm run start:all
+   ```
 
-That's it! The script will automatically:
-- Install Python backend dependencies
+**What this does automatically:**
+- Install Python backend dependencies (via virtual environment on macOS/Linux)
 - Start the FastAPI backend server on http://localhost:8000
 - Start the React frontend development server on http://localhost:5174
 - Handle graceful shutdown when you press Ctrl+C
@@ -87,15 +95,42 @@ If you prefer to install dependencies manually:
    ```
 
 2. **Set up Python Virtual Environment and Install Backend Dependencies**
+   
+   **On macOS/Linux:**
    ```bash
    # Create a virtual environment
    python -m venv .venv
    
    # Activate the virtual environment
-   # On macOS/Linux:
    source .venv/bin/activate
-   # On Windows:
-   # .venv\Scripts\activate
+   
+   # Install backend dependencies
+   cd backend
+   pip install -r requirements.txt
+   cd ..
+   ```
+   
+   **On Windows (Command Prompt):**
+   ```cmd
+   # Create a virtual environment
+   python -m venv .venv
+   
+   # Activate the virtual environment
+   .venv\Scripts\activate
+   
+   # Install backend dependencies
+   cd backend
+   pip install -r requirements.txt
+   cd ..
+   ```
+   
+   **On Windows (PowerShell):**
+   ```powershell
+   # Create a virtual environment
+   python -m venv .venv
+   
+   # Activate the virtual environment
+   .venv\Scripts\Activate.ps1
    
    # Install backend dependencies
    cd backend
@@ -103,17 +138,25 @@ If you prefer to install dependencies manually:
    cd ..
    ```
 
-   **Note:** The virtual environment needs to be activated each time you want to run the backend server manually. The `./start.sh` script handles this automatically.
+   **Note:** The virtual environment needs to be activated each time you want to run the backend server manually. The startup scripts handle this automatically on macOS/Linux.
 
 ## Running the Application
 
 ### Option 1: Quick Start Script (Recommended)
+
+**On macOS/Linux:**
 ```bash
 ./start.sh
 ```
+
+**On Windows:**
+```bash
+npm run start:all
+```
+
 This single command starts both servers and handles everything for you. Press `Ctrl+C` to stop both servers cleanly.
 
-### Option 2: Using NPM Scripts
+### Option 2: Using NPM Scripts (Cross-platform)
 - **`npm run start:all`** - Start both frontend and backend servers simultaneously
 - **`npm run start:frontend`** - Start only the frontend development server (Vite)
 - **`npm run start:backend`** - Start only the backend server (FastAPI)
@@ -121,10 +164,31 @@ This single command starts both servers and handles everything for you. Press `C
 ### Option 3: Manual Server Startup
 
 1. **Start the Backend Server**
+   
+   **On macOS/Linux:**
    ```bash
    # Activate virtual environment first
-   source .venv/bin/activate  # On macOS/Linux
-   # .venv\Scripts\activate   # On Windows
+   source .venv/bin/activate
+   
+   # Start the server
+   cd backend
+   python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+   ```
+   
+   **On Windows (Command Prompt):**
+   ```cmd
+   # Activate virtual environment first
+   .venv\Scripts\activate
+   
+   # Start the server
+   cd backend
+   python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+   ```
+   
+   **On Windows (PowerShell):**
+   ```powershell
+   # Activate virtual environment first
+   .venv\Scripts\Activate.ps1
    
    # Start the server
    cd backend
@@ -139,8 +203,8 @@ This single command starts both servers and handles everything for you. Press `C
 ## Available Scripts
 
 ### Quick Start
-- **`./start.sh`** - **[RECOMMENDED]** Start both frontend and backend servers with a single command
-- **`npm run start:all`** - Alternative way to start both servers simultaneously
+- **`npm run start:all`** - **[RECOMMENDED for Windows]** Start both frontend and backend servers simultaneously
+- **`./start.sh`** - **[RECOMMENDED for macOS/Linux]** Start both servers with shell script
 
 ### Development Scripts
 - **`npm run dev`** - Start only the frontend development server (Vite)
