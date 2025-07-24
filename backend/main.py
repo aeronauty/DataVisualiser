@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import polars as pl
@@ -8,13 +9,29 @@ import uvicorn
 from datetime import datetime
 import random
 import io
+import subprocess
+import asyncio
+import os
+import base64
+from pathlib import Path
+from PIL import Image
+
+# Global variables
+current_dataframe = None
+recording_sessions = {}  # Store browser automation recording sessions
 
 app = FastAPI(title="Data Visualizer API", version="1.0.0")
 
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"],  # Vite dev server
+    allow_origins=[
+        "http://localhost:5173", 
+        "http://127.0.0.1:5173", 
+        "http://localhost:3000",
+        "http://localhost:5174",  # Add the new Vite port
+        "http://127.0.0.1:5174"
+    ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
@@ -416,6 +433,295 @@ async def filter_data(filters: Dict[str, Any]):
         
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error applying filters: {str(e)}")
+
+
+# Recording endpoints
+class RecordingParams(BaseModel):
+    url: str
+    output: str
+    format: str
+    duration: int
+    fps: int
+    x_columns: List[str]
+    y_columns: List[str]
+    speed: float
+
+# Browser automation models
+class FrameConfig(BaseModel):
+    x_column: str
+    y_column: str
+    category_column: Optional[str] = None
+    size_column: Optional[str] = None
+    chart_type: str = 'scatter'
+    animation_enabled: bool = True
+    animation_speed: float = 2.0
+    x_columns: List[str] = []
+    y_columns: List[str] = []
+
+class BrowserAnimationRequest(BaseModel):
+    baseUrl: str
+    frames: List[FrameConfig]
+    filename: Optional[str] = None
+    animationConfig: Dict[str, Any] = {}
+
+
+@app.post("/api/record-animation")
+async def record_animation(params: RecordingParams):
+    """Execute Python script to record chart animation"""
+    try:
+        # Ensure scripts directory exists
+        scripts_dir = Path(__file__).parent.parent / "scripts"
+        script_path = scripts_dir / "record_chart_animation.py"
+        venv_python = scripts_dir / "venv" / "bin" / "python"
+        
+        if not script_path.exists():
+            raise HTTPException(status_code=404, detail="Recording script not found")
+        
+        if not venv_python.exists():
+            raise HTTPException(status_code=500, detail="Virtual environment not found. Run ./setup.sh in scripts directory")
+        
+        # Prepare command arguments using virtual environment Python
+        cmd = [
+            str(venv_python), str(script_path),
+            "--url", params.url,
+            "--output", params.output,
+            "--format", params.format,
+            "--duration", str(params.duration),
+            "--fps", str(params.fps),
+            "--speed", str(params.speed),
+            "--headless",  # Run in headless mode for server environments
+            "--debug"  # Enable debug logging
+        ]
+        
+        if params.x_columns:
+            cmd.extend(["--x-columns"] + params.x_columns)
+        if params.y_columns:
+            cmd.extend(["--y-columns"] + params.y_columns)
+        
+        # Execute the recording script
+        print(f"Executing command: {' '.join(cmd)}")  # Debug log
+        process = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=str(scripts_dir)
+        )
+        
+        stdout, stderr = await process.communicate()
+        
+        # Log the output for debugging
+        stdout_text = stdout.decode()
+        stderr_text = stderr.decode()
+        print(f"Process return code: {process.returncode}")
+        print(f"STDOUT: {stdout_text}")
+        print(f"STDERR: {stderr_text}")
+        
+        if process.returncode == 0:
+            # Determine output filename
+            extension = "gif" if params.format == "gif" else params.format
+            filename = f"{params.output}.{extension}"
+            
+            return {
+                "success": True,
+                "filename": filename,
+                "message": "Recording completed successfully",
+                "output": stdout_text,
+                "debug_info": {
+                    "return_code": process.returncode,
+                    "stderr": stderr_text
+                }
+            }
+        else:
+            return {
+                "success": False,
+                "error": stderr_text or "Unknown error occurred",
+                "output": stdout_text,
+                "debug_info": {
+                    "return_code": process.returncode,
+                    "command": ' '.join(cmd)
+                }
+            }
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Recording failed: {str(e)}")
+
+
+@app.get("/api/download/{filename}")
+async def download_file(filename: str):
+    """Download generated animation file"""
+    try:
+        scripts_dir = Path(__file__).parent.parent / "scripts"
+        file_path = scripts_dir / filename
+        
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail="File not found")
+        
+        return FileResponse(
+            path=file_path,
+            filename=filename,
+            media_type='application/octet-stream'
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
+
+@app.post("/api/record-browser-animation")
+async def record_browser_animation(request: BrowserAnimationRequest):
+    """Start browser animation recording session using current browser"""
+    try:
+        from browser_capture import generate_browser_capture_script
+        
+        # Create session ID
+        session_id = f"recording-{datetime.now().strftime('%Y%m%d_%H%M%S')}-{os.urandom(4).hex()}"
+        
+        # Generate filename if not provided
+        if not request.filename:
+            request.filename = f"chart_animation_{session_id}.gif"
+        
+        # Ensure the filename ends with .gif
+        if not request.filename.endswith('.gif'):
+            request.filename += '.gif'
+        
+        # Convert frames to the format expected by browser capture
+        frames_config = []
+        for frame in request.frames:
+            frames_config.append({
+                'x_column': frame.x_column,
+                'y_column': frame.y_column,
+                'category_column': frame.category_column,
+                'size_column': frame.size_column,
+                'chart_type': frame.chart_type,
+                'animation_enabled': frame.animation_enabled,
+                'animation_speed': frame.animation_speed,
+                'x_columns': frame.x_columns,
+                'y_columns': frame.y_columns
+            })
+        
+        # Generate JavaScript code for browser execution
+        capture_script = generate_browser_capture_script(frames_config, request.animationConfig)
+        
+        # Store the script for the frontend to execute
+        recording_sessions[session_id] = {
+            'status': 'ready',
+            'progress': 0,
+            'message': 'Ready to capture frames in current browser',
+            'filename': request.filename,
+            'started_at': datetime.now(),
+            'completed': False,
+            'error': None,
+            'capture_script': capture_script
+        }
+        
+        return {
+            "success": True,
+            "sessionId": session_id,
+            "message": "Browser capture script generated",
+            "captureScript": capture_script,
+            "estimatedDuration": len(request.frames) * (request.animationConfig.get('frameDelay', 500) / 1000) + 10
+        }
+        
+    except ImportError:
+        raise HTTPException(
+            status_code=500, 
+            detail="Browser capture dependencies not installed."
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to start browser capture: {str(e)}")
+
+@app.post("/api/create-gif-from-frames")
+async def create_gif_from_frames(request: dict):
+    """Create a GIF from base64 encoded frame images"""
+    try:
+        frames_data = request.get('frames', [])
+        config = request.get('config', {})
+        
+        if not frames_data:
+            raise HTTPException(status_code=400, detail="No frames provided")
+        
+        # Generate filename
+        filename = f"chart_animation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.gif"
+        
+        # Create output directory
+        output_dir = Path("./generated_files")
+        output_dir.mkdir(exist_ok=True)
+        output_path = output_dir / filename
+        
+        # Convert base64 frames to PIL images
+        images = []
+        for frame_data in frames_data:
+            # Remove data URL prefix if present
+            if frame_data.startswith('data:image/png;base64,'):
+                frame_data = frame_data.split(',')[1]
+            
+            # Decode base64 to image
+            image_bytes = base64.b64decode(frame_data)
+            image = Image.open(io.BytesIO(image_bytes))
+            images.append(image)
+        
+        # Create GIF
+        if images:
+            duration = config.get('frameDelay', 1000)
+            images[0].save(
+                str(output_path),
+                save_all=True,
+                append_images=images[1:],
+                duration=duration,
+                loop=0,
+                optimize=True
+            )
+            
+            return {
+                "success": True,
+                "filename": filename,
+                "message": "GIF created successfully",
+                "frameCount": len(images)
+            }
+        else:
+            raise HTTPException(status_code=400, detail="No valid frames to process")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create GIF: {str(e)}")
+
+@app.get("/api/recording-status/{session_id}")
+async def get_recording_status(session_id: str):
+    """Get the status of a browser automation recording session"""
+    if session_id not in recording_sessions:
+        raise HTTPException(status_code=404, detail=f"Recording session {session_id} not found")
+    
+    session = recording_sessions[session_id]
+    
+    # Clean up completed sessions after a while
+    if session['completed'] and (datetime.now() - session['started_at']).seconds > 300:  # 5 minutes
+        # Keep the essential info but mark for cleanup
+        session['can_cleanup'] = True
+    
+    return {
+        "sessionId": session_id,
+        "status": session['status'],
+        "progress": session['progress'],
+        "message": session['message'],
+        "completed": session['completed'],
+        "error": session.get('error'),
+        "filename": session.get('filename'),
+        "started_at": session['started_at'].isoformat()
+    }
+
+@app.get("/api/download-file/{filename}")
+async def download_file(filename: str):
+    """Download a generated file"""
+    try:
+        file_path = Path("./generated_files") / filename
+        if not file_path.exists():
+            raise HTTPException(status_code=404, detail=f"File {filename} not found")
+        
+        return FileResponse(
+            path=str(file_path),
+            filename=filename,
+            media_type='application/octet-stream'
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
+
 
 if __name__ == "__main__":
     import uvicorn

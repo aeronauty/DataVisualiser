@@ -7,13 +7,18 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start:frontend": "vite",
+    "start:backend": "./start-backend.sh",
+    "start:all": "concurrently \"npm run start:backend\" \"npm run start:frontend\" --names \"backend,frontend\" --prefix-colors \"blue,green\""
   },
   "dependencies": {
     "@types/node": "^24.1.0",
     "ag-grid-community": "^34.0.2",
     "ag-grid-react": "^34.0.2",
     "axios": "^1.11.0",
+    "gif.js": "^0.2.0",
+    "html2canvas": "^1.4.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "recharts": "^3.1.0"
@@ -23,6 +28,7 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
+    "concurrently": "^9.2.0",
     "eslint": "^9.30.1",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",

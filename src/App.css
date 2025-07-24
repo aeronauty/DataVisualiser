@@ -396,6 +396,112 @@
   font-size: 0.9rem;
 }
 
+/* Export Animation Component */
+.export-animation {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-top: 1rem;
+}
+
+.export-animation h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.export-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.export-type-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.export-type-selection label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.export-type-selection input[type="radio"] {
+  transform: scale(1.1);
+}
+
+.export-button {
+  padding: 0.75rem 1.5rem;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  align-self: flex-start;
+}
+
+.export-button:hover:not(:disabled) {
+  background: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.export-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.export-progress {
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.export-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #28a745, #20c997);
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.export-progress-text {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #666;
+  text-align: center;
+}
+
+.export-info {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border-left: 4px solid #17a2b8;
+}
+
+.export-info p {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.export-info strong {
+  color: #212529;
+}
+
 .config-summary {
   border-top: 1px solid #eee;
   padding-top: 1rem;

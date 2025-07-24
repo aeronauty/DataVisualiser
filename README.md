@@ -69,22 +69,42 @@ DataVisualiser/
    - Pydantic
    - And more...
 
+## Available Scripts
+
+### Quick Start
+- **`npm run start:all`** - Start both frontend and backend servers simultaneously (recommended for development)
+
+### Individual Scripts
+- **`npm run start:frontend`** - Start only the frontend development server (Vite)
+- **`npm run start:backend`** - Start only the backend server (FastAPI with Python virtual environment)
+- **`npm run dev`** - Alias for start:frontend
+- **`npm run build`** - Build the frontend for production
+- **`npm run preview`** - Preview the production build
+- **`npm run lint`** - Run ESLint on the codebase
+
 ### Running the Application
+
+**Option 1: Start Everything at Once (Recommended)**
+```bash
+npm run start:all
+```
+This will start both the backend (http://localhost:8000) and frontend (http://localhost:5173) servers simultaneously with colored output for easy debugging.
+
+**Option 2: Start Servers Individually**
 
 1. **Start the Backend Server**
    ```bash
-   ./start-backend.sh
+   npm run start:backend
    ```
-   Or manually:
+   Or using the shell script directly:
    ```bash
-   cd backend
-   /Users/harrysmith/DataVisualiser/.venv/bin/python main.py
+   ./start-backend.sh
    ```
    The API will be available at `http://localhost:8000`
 
 2. **Start the Frontend Development Server**
    ```bash
-   npm run dev
+   npm run start:frontend
    ```
    The application will be available at `http://localhost:5173`
 

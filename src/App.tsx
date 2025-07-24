@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import DataTable from './components/DataTable'
 import ScatterChart from './components/ScatterChart'
 import ChartControls from './components/ChartControls'
 import DataManager from './components/DataManager'
+import ExportAnimation from './components/ExportAnimation'
 import type { DataPoint, ChartConfig } from './types'
 import axios from 'axios'
 import { binData, shouldUseBinning } from './utils/dataUtils'
@@ -35,6 +36,7 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [animationIndex, setAnimationIndex] = useState(0)
   const [animationInterval, setAnimationInterval] = useState<NodeJS.Timeout | null>(null)
+  const chartContainerRef = useRef<HTMLDivElement>(null)
 
   // Transform raw data to chart format locally (enables smooth transitions)
   const transformDataForChart = (rawDataArray: any[], config: ChartConfig): DataPoint[] => {
@@ -281,9 +283,31 @@ function App() {
           ) : viewMode === 'table' ? (
             <DataTable data={data} />
           ) : (
-            <ScatterChart data={data} config={chartConfig} />
+            <div ref={chartContainerRef}>
+              <ScatterChart data={data} config={chartConfig} />
+            </div>
           )}
         </div>
+
+        {viewMode === 'chart' && (
+          <>
+            {/* Debug info */}
+            <div style={{ padding: '10px', background: '#f0f0f0', margin: '10px' }}>
+              <p><strong>Debug Info:</strong></p>
+              <p>View Mode: {viewMode}</p>
+              <p>Animation Enabled: {chartConfig.animation_enabled ? 'Yes' : 'No'}</p>
+              <p>X Columns: {JSON.stringify(chartConfig.x_columns)}</p>
+              <p>Y Columns: {JSON.stringify(chartConfig.y_columns)}</p>
+            </div>
+            
+            <ExportAnimation 
+              config={chartConfig}
+              onConfigChange={handleConfigChange}
+              chartContainerRef={chartContainerRef}
+              chartData={rawData}
+            />
+          </>
+        )}
       </main>
     </div>
   )
