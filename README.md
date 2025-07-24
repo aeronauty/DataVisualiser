@@ -86,12 +86,24 @@ If you prefer to install dependencies manually:
    npm install
    ```
 
-2. **Install Backend Dependencies**
+2. **Set up Python Virtual Environment and Install Backend Dependencies**
    ```bash
+   # Create a virtual environment
+   python -m venv .venv
+   
+   # Activate the virtual environment
+   # On macOS/Linux:
+   source .venv/bin/activate
+   # On Windows:
+   # .venv\Scripts\activate
+   
+   # Install backend dependencies
    cd backend
    pip install -r requirements.txt
    cd ..
    ```
+
+   **Note:** The virtual environment needs to be activated each time you want to run the backend server manually. The `./start.sh` script handles this automatically.
 
 ## Running the Application
 
@@ -110,6 +122,11 @@ This single command starts both servers and handles everything for you. Press `C
 
 1. **Start the Backend Server**
    ```bash
+   # Activate virtual environment first
+   source .venv/bin/activate  # On macOS/Linux
+   # .venv\Scripts\activate   # On Windows
+   
+   # Start the server
    cd backend
    python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
    ```
