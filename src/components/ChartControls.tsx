@@ -39,30 +39,69 @@ const ChartControls: React.FC<ChartControlsProps> = ({
         </div>
 
         <div className="control-group">
-          <label htmlFor="x-column">X Axis:</label>
-          <select
-            id="x-column"
-            value={config.x_column}
-            onChange={(e) => onConfigChange({ x_column: e.target.value })}
-          >
-            {numericColumns.map(col => (
-              <option key={col.name} value={col.name}>{col.name}</option>
-            ))}
-          </select>
+          <MultiSelect
+            options={numericColumns.map(col => col.name)}
+            selectedValues={config.x_columns || [config.x_column]}
+            onChange={(values) => {
+              onConfigChange({ 
+                x_columns: values,
+                x_column: values[0] || config.x_column // Keep first as current for compatibility
+              })
+            }}
+            label="X Axis (select multiple for animation)"
+            placeholder="Select X axis columns..."
+          />
         </div>
 
         <div className="control-group">
-          <label htmlFor="y-column">Y Axis:</label>
-          <select
-            id="y-column"
-            value={config.y_column}
-            onChange={(e) => onConfigChange({ y_column: e.target.value })}
-          >
-            {numericColumns.map(col => (
-              <option key={col.name} value={col.name}>{col.name}</option>
-            ))}
-          </select>
+          <MultiSelect
+            options={numericColumns.map(col => col.name)}
+            selectedValues={config.y_columns || [config.y_column]}
+            onChange={(values) => {
+              onConfigChange({ 
+                y_columns: values,
+                y_column: values[0] || config.y_column // Keep first as current for compatibility
+              })
+            }}
+            label="Y Axis (select multiple for animation)"
+            placeholder="Select Y axis columns..."
+          />
         </div>
+
+        {((config.x_columns && config.x_columns.length > 1) || 
+          (config.y_columns && config.y_columns.length > 1)) && (
+          <>
+            <div className="control-group">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={config.animation_enabled || false}
+                  onChange={(e) => onConfigChange({ 
+                    animation_enabled: e.target.checked 
+                  })}
+                />
+                Enable Animation
+              </label>
+            </div>
+
+            {config.animation_enabled && (
+              <div className="control-group">
+                <label htmlFor="animation-speed">Animation Speed: {config.animation_speed || 2}s per frame</label>
+                <input
+                  type="range"
+                  id="animation-speed"
+                  min="0.5"
+                  max="10"
+                  step="0.5"
+                  value={config.animation_speed || 2}
+                  onChange={(e) => onConfigChange({ 
+                    animation_speed: parseFloat(e.target.value) 
+                  })}
+                />
+              </div>
+            )}
+          </>
+        )}
 
         <div className="control-group">
           <label htmlFor="category-column">Category (optional):</label>
@@ -161,8 +200,19 @@ const ChartControls: React.FC<ChartControlsProps> = ({
         <h4>Current Configuration:</h4>
         <ul>
           <li><strong>Type:</strong> {config.chart_type}</li>
-          <li><strong>X:</strong> {config.x_column}</li>
-          <li><strong>Y:</strong> {config.y_column}</li>
+          <li><strong>X:</strong> {config.x_column} 
+            {config.x_columns && config.x_columns.length > 1 && 
+              ` (${config.x_columns.length} total: ${config.x_columns.join(', ')})`
+            }
+          </li>
+          <li><strong>Y:</strong> {config.y_column}
+            {config.y_columns && config.y_columns.length > 1 && 
+              ` (${config.y_columns.length} total: ${config.y_columns.join(', ')})`
+            }
+          </li>
+          {config.animation_enabled && (
+            <li><strong>Animation:</strong> Enabled ({config.animation_speed || 2}s per frame)</li>
+          )}
           {config.category_column && (
             <li>
               <strong>Category:</strong> {config.category_column}

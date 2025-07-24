@@ -66,11 +66,19 @@ const ScatterChart: React.FC<ScatterChartProps> = ({ data, config }) => {
   return (
     <div className="scatter-chart-container">
       <div className="chart-header">
-        <h3>Scatter Plot</h3>
+        <h3>
+          Scatter Plot
+          {config.animation_enabled && (
+            <span className="animation-indicator">🎬 Animating</span>
+          )}
+        </h3>
         <div className="chart-config-info">
           <span>X: {config.x_column}</span>
           <span>Y: {config.y_column}</span>
           {config.category_column && <span>Category: {config.category_column}</span>}
+          {config.animation_enabled && (
+            <span className="animation-speed">Speed: {config.animation_speed || 2}s</span>
+          )}
         </div>
       </div>
       

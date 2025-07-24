@@ -18,17 +18,23 @@ function App() {
     chart_type: 'scatter',
     x_column: 'x',
     y_column: 'y',
+    x_columns: ['x'],
+    y_columns: ['y'],
     category_column: 'category',
     size_column: 'size',
     size_min: 3,
     size_max: 25,
     category_bins: 5,
     opacity: 0.7,
-    hover_fields: []
+    hover_fields: [],
+    animation_enabled: false,
+    animation_speed: 2
   })
   const [columns, setColumns] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [animationIndex, setAnimationIndex] = useState(0)
+  const [animationInterval, setAnimationInterval] = useState<NodeJS.Timeout | null>(null)
 
   // Transform raw data to chart format locally (enables smooth transitions)
   const transformDataForChart = (rawDataArray: any[], config: ChartConfig): DataPoint[] => {
@@ -113,6 +119,56 @@ function App() {
       setData(transformedData)
     }
   }, [chartConfig, rawData, viewMode])
+
+  // Animation control effect
+  useEffect(() => {
+    if (animationInterval) {
+      clearInterval(animationInterval)
+    }
+
+    if (chartConfig.animation_enabled) {
+      const xColumns = chartConfig.x_columns || [chartConfig.x_column]
+      const yColumns = chartConfig.y_columns || [chartConfig.y_column]
+      const totalCombinations = Math.max(xColumns.length, yColumns.length)
+
+      if (totalCombinations > 1) {
+        const interval = setInterval(() => {
+          setAnimationIndex(prevIndex => {
+            const newIndex = (prevIndex + 1) % totalCombinations
+            
+            // Update the current x and y columns based on the animation index
+            const newXColumn = xColumns[newIndex % xColumns.length]
+            const newYColumn = yColumns[newIndex % yColumns.length]
+            
+            setChartConfig((prev: ChartConfig) => ({
+              ...prev,
+              x_column: newXColumn,
+              y_column: newYColumn
+            }))
+            
+            return newIndex
+          })
+        }, (chartConfig.animation_speed || 2) * 1000)
+
+        setAnimationInterval(interval)
+      }
+    }
+
+    return () => {
+      if (animationInterval) {
+        clearInterval(animationInterval)
+      }
+    }
+  }, [chartConfig.animation_enabled, chartConfig.animation_speed, chartConfig.x_columns, chartConfig.y_columns])
+
+  // Cleanup animation on unmount
+  useEffect(() => {
+    return () => {
+      if (animationInterval) {
+        clearInterval(animationInterval)
+      }
+    }
+  }, [])
 
   const fetchColumns = async () => {
     try {

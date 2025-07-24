@@ -10,6 +10,8 @@ export interface ChartConfig {
   chart_type: 'scatter' | 'line' | 'bar'
   x_column: string
   y_column: string
+  x_columns?: string[]
+  y_columns?: string[]
   category_column?: string
   size_column?: string
   size_min?: number
@@ -17,6 +19,8 @@ export interface ChartConfig {
   category_bins?: number
   opacity?: number
   hover_fields?: string[]
+  animation_enabled?: boolean
+  animation_speed?: number // seconds per frame
 }
 
 export interface ColumnInfo {
