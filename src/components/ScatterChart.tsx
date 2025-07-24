@@ -7,8 +7,7 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer, 
-  Legend,
-  Cell
+  Legend
 } from 'recharts'
 import type { DataPoint, ChartConfig } from '../types'
 
@@ -45,7 +44,6 @@ const ScatterChart: React.FC<ScatterChartProps> = ({ data, config }) => {
           <p><strong>Y:</strong> {data.y?.toFixed(2)}</p>
           {config.category_column && <p><strong>Category:</strong> {data.category}</p>}
           {config.size_column && <p><strong>Size:</strong> {data.size?.toFixed(2)}</p>}
-          {config.color_column && <p><strong>Color Value:</strong> {data.color}</p>}
         </div>
       )
     }
@@ -96,14 +94,27 @@ const ScatterChart: React.FC<ScatterChartProps> = ({ data, config }) => {
               fill={COLORS[index % COLORS.length]}
               animationDuration={800}
               animationEasing="ease-out"
-            >
-              {config.size_column && groupedData[category].map((entry, i) => (
-                <Cell 
-                  key={`cell-${i}`} 
-                  r={Math.max(3, Math.min(20, (entry.size || 10) / 5))} 
-                />
-              ))}
-            </Scatter>
+              shape={(props: any) => {
+                const { cx, cy, payload } = props
+                const minSize = config.size_min || 3
+                const maxSize = config.size_max || 25
+                const radius = config.size_column && payload?.size 
+                  ? Math.max(minSize, Math.min(maxSize, payload.size / 20)) // Scale the size appropriately
+                  : 4 // Default size
+                
+                return (
+                  <circle 
+                    cx={cx} 
+                    cy={cy} 
+                    r={radius} 
+                    fill={COLORS[index % COLORS.length]}
+                    fillOpacity={0.7}
+                    stroke={COLORS[index % COLORS.length]}
+                    strokeWidth={1}
+                  />
+                )
+              }}
+            />
           ))}
         </RechartsScatter>
       </ResponsiveContainer>

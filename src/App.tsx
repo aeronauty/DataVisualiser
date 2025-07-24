@@ -6,6 +6,7 @@ import ChartControls from './components/ChartControls'
 import DataManager from './components/DataManager'
 import type { DataPoint, ChartConfig } from './types'
 import axios from 'axios'
+import { binData, shouldUseBinning } from './utils/dataUtils'
 
 const API_BASE_URL = 'http://localhost:8000'
 
@@ -18,7 +19,10 @@ function App() {
     x_column: 'x',
     y_column: 'y',
     category_column: 'category',
-    size_column: 'size'
+    size_column: 'size',
+    size_min: 3,
+    size_max: 25,
+    category_bins: 5
   })
   const [columns, setColumns] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
@@ -26,7 +30,7 @@ function App() {
 
   // Transform raw data to chart format locally (enables smooth transitions)
   const transformDataForChart = (rawDataArray: any[], config: ChartConfig): DataPoint[] => {
-    return rawDataArray.map(row => {
+    let transformedData = rawDataArray.map(row => {
       const point: DataPoint = {
         x: row[config.x_column] || 0,
         y: row[config.y_column] || 0,
@@ -34,16 +38,28 @@ function App() {
       
       if (config.category_column) {
         point.category = row[config.category_column]
+        // Store the original value for binning
+        point[config.category_column] = row[config.category_column]
       }
       if (config.size_column) {
         point.size = row[config.size_column]
       }
-      if (config.color_column) {
-        point.color = row[config.color_column]
-      }
       
       return point
     })
+
+    // Apply binning if needed for numerical category columns
+    if (config.category_column && 
+        shouldUseBinning(config.category_column, columns)) {
+      transformedData = binData(
+        transformedData, 
+        config.category_column, 
+        config.category_bins || 5,
+        columns
+      )
+    }
+    
+    return transformedData
   }
 
   // Fetch available columns on component mount

@@ -3,7 +3,6 @@ export interface DataPoint {
   y: number
   category?: string
   size?: number
-  color?: string
   [key: string]: any // Allow additional properties
 }
 
@@ -13,7 +12,9 @@ export interface ChartConfig {
   y_column: string
   category_column?: string
   size_column?: string
-  color_column?: string
+  size_min?: number
+  size_max?: number
+  category_bins?: number
 }
 
 export interface ColumnInfo {

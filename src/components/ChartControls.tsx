@@ -1,5 +1,7 @@
 import React from 'react'
 import type { ChartConfig, ColumnInfo } from '../types'
+import RangeSlider from './RangeSlider'
+import { shouldUseBinning } from '../utils/dataUtils'
 
 interface ChartControlsProps {
   config: ChartConfig
@@ -77,6 +79,26 @@ const ChartControls: React.FC<ChartControlsProps> = ({
           </select>
         </div>
 
+        {config.category_column && (
+          <>
+            {shouldUseBinning(config.category_column, columns) && (
+              <div className="control-group">
+                <label htmlFor="category-bins">Number of bins: {config.category_bins || 5}</label>
+                <input
+                  type="range"
+                  id="category-bins"
+                  min="2"
+                  max="20"
+                  value={config.category_bins || 5}
+                  onChange={(e) => onConfigChange({ 
+                    category_bins: parseInt(e.target.value) 
+                  })}
+                />
+              </div>
+            )}
+          </>
+        )}
+
         <div className="control-group">
           <label htmlFor="size-column">Size (optional):</label>
           <select
@@ -93,21 +115,20 @@ const ChartControls: React.FC<ChartControlsProps> = ({
           </select>
         </div>
 
-        <div className="control-group">
-          <label htmlFor="color-column">Color (optional):</label>
-          <select
-            id="color-column"
-            value={config.color_column || ''}
-            onChange={(e) => onConfigChange({ 
-              color_column: e.target.value || undefined 
-            })}
-          >
-            <option value="">None</option>
-            {allColumns.map(col => (
-              <option key={col.name} value={col.name}>{col.name}</option>
-            ))}
-          </select>
-        </div>
+        {config.size_column && (
+          <div className="control-group">
+            <RangeSlider
+              min={1}
+              max={50}
+              value={[config.size_min || 3, config.size_max || 25]}
+              onChange={([min, max]) => onConfigChange({ 
+                size_min: min,
+                size_max: max
+              })}
+              label="Size Range"
+            />
+          </div>
+        )}
       </div>
 
       <div className="config-summary">
@@ -117,13 +138,15 @@ const ChartControls: React.FC<ChartControlsProps> = ({
           <li><strong>X:</strong> {config.x_column}</li>
           <li><strong>Y:</strong> {config.y_column}</li>
           {config.category_column && (
-            <li><strong>Category:</strong> {config.category_column}</li>
+            <li>
+              <strong>Category:</strong> {config.category_column}
+              {shouldUseBinning(config.category_column, columns) && 
+                ` (${config.category_bins || 5} bins)`
+              }
+            </li>
           )}
           {config.size_column && (
-            <li><strong>Size:</strong> {config.size_column}</li>
-          )}
-          {config.color_column && (
-            <li><strong>Color:</strong> {config.color_column}</li>
+            <li><strong>Size:</strong> {config.size_column} (range: {config.size_min || 3}-{config.size_max || 25})</li>
           )}
         </ul>
       </div>
