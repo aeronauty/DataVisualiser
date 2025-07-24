@@ -45,7 +45,8 @@ DataVisualiser/
 │   └── App.css              # Application styles
 ├── .github/
 │   └── copilot-instructions.md # Development guidelines
-└── start-backend.sh         # Backend startup script
+├── start.sh                 # Quick startup script (starts both servers)
+└── start-backend.sh         # Backend-only startup script
 ```
 
 ## Getting Started
@@ -54,7 +55,31 @@ DataVisualiser/
 - Node.js (v18 or higher)
 - Python (v3.8 or higher)
 
-### Installation
+### Quick Installation & Run
+
+**The fastest way to get started:**
+
+1. **Clone and navigate to the project**
+   ```bash
+   git clone <repository-url>
+   cd DataVisualiser
+   ```
+
+2. **Install dependencies and start everything**
+   ```bash
+   npm install
+   ./start.sh
+   ```
+
+That's it! The script will automatically:
+- Install Python backend dependencies
+- Start the FastAPI backend server on http://localhost:8000
+- Start the React frontend development server on http://localhost:5174
+- Handle graceful shutdown when you press Ctrl+C
+
+### Manual Installation
+
+If you prefer to install dependencies manually:
 
 1. **Install Frontend Dependencies**
    ```bash
@@ -62,51 +87,51 @@ DataVisualiser/
    ```
 
 2. **Install Backend Dependencies**
-   The Python environment is already configured with all required packages:
-   - FastAPI
-   - Uvicorn
-   - Polars
-   - Pydantic
-   - And more...
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   cd ..
+   ```
+
+## Running the Application
+
+### Option 1: Quick Start Script (Recommended)
+```bash
+./start.sh
+```
+This single command starts both servers and handles everything for you. Press `Ctrl+C` to stop both servers cleanly.
+
+### Option 2: Using NPM Scripts
+- **`npm run start:all`** - Start both frontend and backend servers simultaneously
+- **`npm run start:frontend`** - Start only the frontend development server (Vite)
+- **`npm run start:backend`** - Start only the backend server (FastAPI)
+
+### Option 3: Manual Server Startup
+
+1. **Start the Backend Server**
+   ```bash
+   cd backend
+   python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+   ```
+
+2. **Start the Frontend Development Server** (in another terminal)
+   ```bash
+   npm run dev
+   ```
 
 ## Available Scripts
 
 ### Quick Start
-- **`npm run start:all`** - Start both frontend and backend servers simultaneously (recommended for development)
+- **`./start.sh`** - **[RECOMMENDED]** Start both frontend and backend servers with a single command
+- **`npm run start:all`** - Alternative way to start both servers simultaneously
 
-### Individual Scripts
-- **`npm run start:frontend`** - Start only the frontend development server (Vite)
-- **`npm run start:backend`** - Start only the backend server (FastAPI with Python virtual environment)
-- **`npm run dev`** - Alias for start:frontend
+### Development Scripts
+- **`npm run dev`** - Start only the frontend development server (Vite)
 - **`npm run build`** - Build the frontend for production
 - **`npm run preview`** - Preview the production build
 - **`npm run lint`** - Run ESLint on the codebase
-
-### Running the Application
-
-**Option 1: Start Everything at Once (Recommended)**
-```bash
-npm run start:all
-```
-This will start both the backend (http://localhost:8000) and frontend (http://localhost:5173) servers simultaneously with colored output for easy debugging.
-
-**Option 2: Start Servers Individually**
-
-1. **Start the Backend Server**
-   ```bash
-   npm run start:backend
-   ```
-   Or using the shell script directly:
-   ```bash
-   ./start-backend.sh
-   ```
-   The API will be available at `http://localhost:8000`
-
-2. **Start the Frontend Development Server**
-   ```bash
-   npm run start:frontend
-   ```
-   The application will be available at `http://localhost:5173`
+- **`npm run start:frontend`** - Start only the frontend development server
+- **`npm run start:backend`** - Start only the backend server (FastAPI)
 
 ## API Endpoints
 
