@@ -1,0 +1,25 @@
+company,department,region,revenue,profit,employees,customers,satisfaction,market_share,growth_rate,year,quarter
+TechCorp,Engineering,North America,750000,150000,150,2500,8.5,12.5,15.2,2024,1
+DataInc,Sales,Europe,680000,102000,120,1800,7.8,8.9,22.1,2024,1
+CloudSys,Marketing,Asia Pacific,920000,184000,200,3200,9.1,15.3,18.7,2024,1
+AILabs,Research,North America,1200000,240000,250,1500,8.9,20.1,25.4,2024,1
+DevOps,Operations,Europe,580000,87000,100,2100,7.5,6.7,12.3,2024,1
+SecureNet,Engineering,Asia Pacific,850000,170000,180,2800,8.2,11.8,19.6,2024,1
+WebFlow,Sales,North America,720000,108000,140,2200,8.0,9.5,16.8,2024,1
+AppForge,Marketing,Europe,660000,99000,110,1900,7.6,7.8,14.2,2024,1
+TechCorp,Engineering,North America,780000,156000,155,2600,8.7,12.8,16.5,2024,2
+DataInc,Sales,Europe,710000,106500,125,1950,8.0,9.2,23.8,2024,2
+CloudSys,Marketing,Asia Pacific,980000,196000,210,3400,9.3,16.1,20.3,2024,2
+AILabs,Research,North America,1350000,270000,260,1650,9.2,21.5,28.1,2024,2
+DevOps,Operations,Europe,620000,93000,105,2250,7.8,7.1,14.7,2024,2
+SecureNet,Engineering,Asia Pacific,890000,178000,185,2950,8.4,12.3,21.2,2024,2
+WebFlow,Sales,North America,750000,112500,145,2350,8.2,9.8,18.1,2024,2
+AppForge,Marketing,Europe,690000,103500,115,2050,7.8,8.2,15.6,2024,2
+TechCorp,Engineering,North America,820000,164000,160,2750,8.9,13.2,17.8,2024,3
+DataInc,Sales,Europe,740000,111000,130,2100,8.2,9.6,25.5,2024,3
+CloudSys,Marketing,Asia Pacific,1050000,210000,220,3600,9.5,16.9,22.1,2024,3
+AILabs,Research,North America,1500000,300000,270,1800,9.4,23.1,30.8,2024,3
+DevOps,Operations,Europe,650000,97500,110,2400,8.0,7.5,16.2,2024,3
+SecureNet,Engineering,Asia Pacific,930000,186000,190,3100,8.6,12.8,22.8,2024,3
+WebFlow,Sales,North America,780000,117000,150,2500,8.4,10.2,19.5,2024,3
+AppForge,Marketing,Europe,720000,108000,120,2200,8.0,8.6,17.1,2024,3
