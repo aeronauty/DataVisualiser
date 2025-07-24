@@ -96,13 +96,18 @@ const ScatterChart: React.FC<ScatterChartProps> = ({ data, config }) => {
             type="number" 
             dataKey="x" 
             name={config.x_column}
-            label={{ value: config.x_column, position: 'insideBottom', offset: -10 }}
+            label={{ value: config.x_column, position: 'insideBottomRight', offset: -5 }}
           />
           <YAxis 
             type="number" 
             dataKey="y" 
             name={config.y_column}
-            label={{ value: config.y_column, angle: -90, position: 'insideLeft' }}
+            label={{ 
+              value: config.y_column, 
+              angle: 90, 
+              position: 'insideTopLeft',
+              style: { textAnchor: 'middle' }
+            }}
           />
           <Tooltip content={<CustomTooltip />} />
           {categories.length > 1 && <Legend />}
@@ -113,7 +118,7 @@ const ScatterChart: React.FC<ScatterChartProps> = ({ data, config }) => {
               name={category}
               data={groupedData[category]}
               fill={COLORS[index % COLORS.length]}
-              animationDuration={800}
+              animationDuration={config.transition_duration || config.animation_duration || 800}
               animationEasing="ease-out"
               shape={(props: any) => {
                 const { cx, cy, payload } = props

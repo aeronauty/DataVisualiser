@@ -21,6 +21,8 @@ export interface ChartConfig {
   hover_fields?: string[]
   animation_enabled?: boolean
   animation_speed?: number // seconds per frame
+  animation_duration?: number // milliseconds for chart transitions
+  transition_duration?: number // milliseconds for smooth transitions between frames
 }
 
 export interface ColumnInfo {

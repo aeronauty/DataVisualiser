@@ -85,20 +85,52 @@ const ChartControls: React.FC<ChartControlsProps> = ({
             </div>
 
             {config.animation_enabled && (
-              <div className="control-group">
-                <label htmlFor="animation-speed">Animation Speed: {config.animation_speed || 2}s per frame</label>
-                <input
-                  type="range"
-                  id="animation-speed"
-                  min="0.5"
-                  max="10"
-                  step="0.5"
-                  value={config.animation_speed || 2}
-                  onChange={(e) => onConfigChange({ 
-                    animation_speed: parseFloat(e.target.value) 
-                  })}
-                />
-              </div>
+              <>
+                <div className="control-group">
+                  <label htmlFor="animation-speed">Animation Speed: {config.animation_speed || 2}s per frame</label>
+                  <input
+                    type="range"
+                    id="animation-speed"
+                    min="0.5"
+                    max="10"
+                    step="0.5"
+                    value={config.animation_speed || 2}
+                    onChange={(e) => onConfigChange({ 
+                      animation_speed: parseFloat(e.target.value) 
+                    })}
+                  />
+                </div>
+
+                <div className="control-group">
+                  <label htmlFor="animation-duration">Animation Duration: {config.animation_duration || 800}ms</label>
+                  <input
+                    type="range"
+                    id="animation-duration"
+                    min="200"
+                    max="2000"
+                    step="100"
+                    value={config.animation_duration || 800}
+                    onChange={(e) => onConfigChange({ 
+                      animation_duration: parseInt(e.target.value) 
+                    })}
+                  />
+                </div>
+
+                <div className="control-group">
+                  <label htmlFor="transition-duration">Transition Duration: {config.transition_duration || 1000}ms</label>
+                  <input
+                    type="range"
+                    id="transition-duration"
+                    min="500"
+                    max="3000"
+                    step="100"
+                    value={config.transition_duration || 1000}
+                    onChange={(e) => onConfigChange({ 
+                      transition_duration: parseInt(e.target.value) 
+                    })}
+                  />
+                </div>
+              </>
             )}
           </>
         )}

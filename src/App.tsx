@@ -4,7 +4,6 @@ import DataTable from './components/DataTable'
 import ScatterChart from './components/ScatterChart'
 import ChartControls from './components/ChartControls'
 import DataManager from './components/DataManager'
-import ExportAnimation from './components/ExportAnimation'
 import type { DataPoint, ChartConfig } from './types'
 import axios from 'axios'
 import { binData, shouldUseBinning } from './utils/dataUtils'
@@ -29,7 +28,9 @@ function App() {
     opacity: 0.7,
     hover_fields: [],
     animation_enabled: false,
-    animation_speed: 2
+    animation_speed: 2,
+    animation_duration: 800,
+    transition_duration: 1000
   })
   const [columns, setColumns] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
@@ -142,6 +143,8 @@ function App() {
             const newXColumn = xColumns[newIndex % xColumns.length]
             const newYColumn = yColumns[newIndex % yColumns.length]
             
+            console.log(`Animation frame ${newIndex}: ${newXColumn} vs ${newYColumn}`)
+            
             setChartConfig((prev: ChartConfig) => ({
               ...prev,
               x_column: newXColumn,
@@ -161,7 +164,7 @@ function App() {
         clearInterval(animationInterval)
       }
     }
-  }, [chartConfig.animation_enabled, chartConfig.animation_speed, chartConfig.x_columns, chartConfig.y_columns])
+  }, [chartConfig.animation_enabled, chartConfig.animation_speed, chartConfig.transition_duration, chartConfig.x_columns, chartConfig.y_columns])
 
   // Cleanup animation on unmount
   useEffect(() => {
@@ -290,23 +293,13 @@ function App() {
         </div>
 
         {viewMode === 'chart' && (
-          <>
-            {/* Debug info */}
-            <div style={{ padding: '10px', background: '#f0f0f0', margin: '10px' }}>
-              <p><strong>Debug Info:</strong></p>
-              <p>View Mode: {viewMode}</p>
-              <p>Animation Enabled: {chartConfig.animation_enabled ? 'Yes' : 'No'}</p>
-              <p>X Columns: {JSON.stringify(chartConfig.x_columns)}</p>
-              <p>Y Columns: {JSON.stringify(chartConfig.y_columns)}</p>
-            </div>
-            
-            <ExportAnimation 
-              config={chartConfig}
-              onConfigChange={handleConfigChange}
-              chartContainerRef={chartContainerRef}
-              chartData={rawData}
-            />
-          </>
+          <div style={{ padding: '10px', background: '#f0f0f0', margin: '10px' }}>
+            <p><strong>Debug Info:</strong></p>
+            <p>View Mode: {viewMode}</p>
+            <p>Animation Enabled: {chartConfig.animation_enabled ? 'Yes' : 'No'}</p>
+            <p>X Columns: {JSON.stringify(chartConfig.x_columns)}</p>
+            <p>Y Columns: {JSON.stringify(chartConfig.y_columns)}</p>
+          </div>
         )}
       </main>
     </div>
