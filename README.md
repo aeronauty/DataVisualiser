@@ -53,7 +53,7 @@ DataVisualiser/
 
 ### Prerequisites
 - Node.js (v18 or higher)
-- Python (v3.8 or higher)
+- Python (v3.9 or higher) **[Updated: Now requires Python 3.9+ for latest NumPy 2.1+]**
 
 ### Quick Installation & Run
 
@@ -81,9 +81,27 @@ DataVisualiser/
 
 **What this does automatically:**
 - Install Python backend dependencies (via virtual environment on macOS/Linux)
+- Uses latest package versions including NumPy 2.1+, Polars 1.12+, FastAPI 0.115+
 - Start the FastAPI backend server on http://localhost:8000
 - Start the React frontend development server on http://localhost:5174
 - Handle graceful shutdown when you press Ctrl+C
+
+### Enterprise/Work Environment Notes
+
+If you're installing at work and encountering issues:
+
+1. **Corporate Firewall/Proxy**: You may need to configure pip to work with your corporate proxy:
+   ```bash
+   pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r backend/requirements.txt
+   ```
+
+2. **Package Version Conflicts**: The requirements.txt now uses latest versions. If you need older versions for compatibility:
+   ```bash
+   cd backend
+   pip install -r requirements.txt --force-reinstall
+   ```
+
+3. **Python Version**: Ensure you have Python 3.9+ for NumPy 2.1+ compatibility
 
 ### Manual Installation
 
@@ -257,10 +275,12 @@ The `/sample-data` directory contains example CSV files you can use to test the 
 - Axios for API communication
 
 ### Backend Technologies
-- FastAPI for the web framework
-- Polars for high-performance data processing
-- Pydantic for data validation
-- Uvicorn for ASGI server
+- **FastAPI 0.115+** for the web framework
+- **Polars 1.12+** for high-performance data processing
+- **NumPy 2.1+** for numerical computing
+- **Pandas 2.2+** for data manipulation compatibility
+- **Pydantic 2.10+** for data validation
+- **Uvicorn 0.32+** for ASGI server
 
 ### Type Safety
 The application uses TypeScript throughout with proper type definitions for:
