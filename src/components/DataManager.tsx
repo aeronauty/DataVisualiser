@@ -53,6 +53,8 @@ const DataManager: React.FC<DataManagerProps> = ({ onDataLoaded, apiBaseUrl }) =
     setError(null)
     
     try {
+      console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type)
+      
       const formData = new FormData()
       formData.append('file', file)
 
@@ -62,12 +64,20 @@ const DataManager: React.FC<DataManagerProps> = ({ onDataLoaded, apiBaseUrl }) =
         }
       })
       
-      console.log('File uploaded:', response.data)
+      console.log('File uploaded successfully:', response.data)
       onDataLoaded()
       setShowDataManager(false)
-    } catch (err) {
-      setError('Failed to upload file')
-      console.error(err)
+    } catch (err: any) {
+      console.error('Upload error:', err)
+      
+      let errorMessage = 'Failed to upload file'
+      if (err.response?.data?.detail) {
+        errorMessage = err.response.data.detail
+      } else if (err.message) {
+        errorMessage = `Upload failed: ${err.message}`
+      }
+      
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

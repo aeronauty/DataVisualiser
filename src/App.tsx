@@ -41,25 +41,31 @@ function App() {
 
   // Transform raw data to chart format locally (enables smooth transitions)
   const transformDataForChart = (rawDataArray: any[], config: ChartConfig): DataPoint[] => {
+    if (!rawDataArray || rawDataArray.length === 0) {
+      return []
+    }
+
     let transformedData = rawDataArray.map(row => {
       const point: DataPoint = {
-        x: row[config.x_column] || 0,
-        y: row[config.y_column] || 0,
+        x: row[config.x_column] !== undefined ? row[config.x_column] : 0,
+        y: row[config.y_column] !== undefined ? row[config.y_column] : 0,
       }
       
-      if (config.category_column) {
+      if (config.category_column && row[config.category_column] !== undefined) {
         point.category = row[config.category_column]
         // Store the original value for binning
         point[config.category_column] = row[config.category_column]
       }
-      if (config.size_column) {
+      if (config.size_column && row[config.size_column] !== undefined) {
         point.size = row[config.size_column]
       }
       
       // Add all hover fields to the data point
       if (config.hover_fields) {
         config.hover_fields.forEach((field: string) => {
-          point[field] = row[field]
+          if (row[field] !== undefined) {
+            point[field] = row[field]
+          }
         })
       }
       
@@ -88,16 +94,15 @@ function App() {
   // Update chart config when columns change
   useEffect(() => {
     if (columns.length > 0) {
+      // Only update category and size columns based on column types
+      // X and Y columns are now set by fetchColumns using backend defaults
       const numericColumns = columns.filter(col => col.is_numeric)
-      if (numericColumns.length >= 2) {
-        setChartConfig((prev: ChartConfig) => ({
-          ...prev,
-          x_column: numericColumns[0]?.name || prev.x_column,
-          y_column: numericColumns[1]?.name || prev.y_column,
-          category_column: columns.find(col => !col.is_numeric)?.name || undefined,
-          size_column: numericColumns[2]?.name || undefined
-        }))
-      }
+      
+      setChartConfig((prev: ChartConfig) => ({
+        ...prev,
+        category_column: columns.find(col => !col.is_numeric)?.name || undefined,
+        size_column: numericColumns[0]?.name || undefined
+      }))
     }
   }, [columns])
 
@@ -180,6 +185,17 @@ function App() {
       setError(null)
       const response = await axios.get(`${API_BASE_URL}/data/columns`)
       setColumns(response.data.columns)
+      
+      // Update chart config with backend-provided defaults
+      if (response.data.first_column && response.data.second_column) {
+        setChartConfig((prev: ChartConfig) => ({
+          ...prev,
+          x_column: response.data.first_column,
+          y_column: response.data.second_column,
+          x_columns: [response.data.first_column],
+          y_columns: [response.data.second_column]
+        }))
+      }
     } catch (err) {
       const errorMsg = axios.isAxiosError(err) 
         ? `Failed to fetch columns: ${err.message}` 

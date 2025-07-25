@@ -237,10 +237,23 @@ async def get_available_columns():
                 "is_numeric": dtype in [pl.Float64, pl.Float32, pl.Int64, pl.Int32, pl.Int16, pl.Int8]
             })
         
-        return {"columns": columns_info}
+        # Get first and second columns for defaults
+        column_names = list(schema.keys())
+        first_column = column_names[0] if column_names else "x"
+        second_column = column_names[1] if len(column_names) > 1 else column_names[0] if column_names else "y"
+        
+        return {
+            "columns": columns_info,
+            "first_column": first_column,
+            "second_column": second_column
+        }
     except Exception as e:
         print(f"Error getting columns: {e}")
-        return {"columns": []}
+        return {
+            "columns": [],
+            "first_column": "x",
+            "second_column": "y"
+        }
 
 @app.post("/data/upload")
 async def upload_data(data: List[Dict[str, Any]]):
@@ -267,23 +280,54 @@ async def upload_csv_file(file: UploadFile = File(...)):
     """Upload a CSV file and replace current data"""
     global current_data
     try:
+        print(f"Received file: {file.filename}, content type: {file.content_type}, size: {file.size}")
+        
+        # Validate file
+        if not file.filename:
+            raise HTTPException(status_code=400, detail="No file selected")
+        
+        if not file.filename.lower().endswith('.csv'):
+            raise HTTPException(status_code=400, detail="File must be a CSV file")
+        
         # Read file content
         content = await file.read()
+        print(f"File content length: {len(content)} bytes")
+        
+        if len(content) == 0:
+            raise HTTPException(status_code=400, detail="File is empty")
         
         # Convert bytes to string
-        csv_string = content.decode('utf-8')
+        try:
+            csv_string = content.decode('utf-8')
+        except UnicodeDecodeError:
+            try:
+                csv_string = content.decode('latin-1')
+            except UnicodeDecodeError as e:
+                raise HTTPException(status_code=400, detail=f"Could not decode file. Please ensure it's a valid UTF-8 or Latin-1 encoded CSV file: {str(e)}")
+        
+        print(f"Decoded CSV string preview: {csv_string[:200]}...")
         
         # Create StringIO object for polars
         csv_io = io.StringIO(csv_string)
         
         # Read CSV with Polars
-        df = pl.read_csv(csv_io)
+        try:
+            df = pl.read_csv(csv_io)
+        except Exception as e:
+            print(f"Polars CSV read error: {str(e)}")
+            raise HTTPException(status_code=400, detail=f"Error parsing CSV file: {str(e)}")
+        
+        if df.is_empty():
+            raise HTTPException(status_code=400, detail="CSV file contains no data")
+        
         current_data = df.lazy()
         
         # Get basic info
         schema = current_data.collect_schema()
         row_count = len(df)
         col_count = len(schema)
+        
+        print(f"Successfully loaded CSV: {row_count} rows, {col_count} columns")
         
         return {
             "message": f"CSV file '{file.filename}' uploaded successfully",
@@ -292,7 +336,12 @@ async def upload_csv_file(file: UploadFile = File(...)):
             "column_names": list(schema.keys())
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
+        print(f"Unexpected error in CSV upload: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail=f"Error processing CSV file: {str(e)}")
 
 @app.get("/data/sample-datasets")
