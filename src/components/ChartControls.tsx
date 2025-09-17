@@ -3,6 +3,7 @@ import type { ChartConfig, ColumnInfo } from '../types'
 import RangeSlider from './RangeSlider'
 import MultiSelect from './MultiSelect'
 import { shouldUseBinning } from '../utils/dataUtils'
+import { shouldUseFixedLimits, formatAxisValue } from '../utils/axisUtils'
 
 interface ChartControlsProps {
   config: ChartConfig
@@ -132,6 +133,36 @@ const ChartControls: React.FC<ChartControlsProps> = ({
                 </div>
               </>
             )}
+
+            <div className="control-group">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={config.fixed_axis_limits || false}
+                  onChange={(e) => onConfigChange({ 
+                    fixed_axis_limits: e.target.checked 
+                  })}
+                />
+                Fix Axis Limits (prevents jumping during animation)
+              </label>
+            </div>
+
+            {config.fixed_axis_limits && (
+              <div className="axis-limits-info">
+                <div className="control-group">
+                  <h4>Current Axis Limits:</h4>
+                  {config.x_axis_min !== undefined && config.x_axis_max !== undefined && (
+                    <p><strong>X Axis:</strong> {formatAxisValue(config.x_axis_min)} to {formatAxisValue(config.x_axis_max)}</p>
+                  )}
+                  {config.y_axis_min !== undefined && config.y_axis_max !== undefined && (
+                    <p><strong>Y Axis:</strong> {formatAxisValue(config.y_axis_min)} to {formatAxisValue(config.y_axis_max)}</p>
+                  )}
+                  <p className="help-text">
+                    Limits are automatically calculated to cover all selected columns with 5% padding.
+                  </p>
+                </div>
+              </div>
+            )}
           </>
         )}
 
@@ -244,6 +275,9 @@ const ChartControls: React.FC<ChartControlsProps> = ({
           </li>
           {config.animation_enabled && (
             <li><strong>Animation:</strong> Enabled ({config.animation_speed || 2}s per frame)</li>
+          )}
+          {config.fixed_axis_limits && (
+            <li><strong>Fixed Axis Limits:</strong> Enabled</li>
           )}
           {config.category_column && (
             <li>

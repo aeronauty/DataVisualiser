@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Data Visualizer Startup Script
-# Starts both backend and frontend servers
+# Starts frontend-only CSV-based data visualizer
 
-echo "🚀 Starting Data Visualizer..."
+echo "🚀 Starting Data Visualizer (Frontend Only)..."
 echo ""
 
 # Check if we're in the correct directory
@@ -15,7 +15,7 @@ fi
 # Function to cleanup background processes
 cleanup() {
     echo ""
-    echo "🛑 Shutting down servers..."
+    echo "🛑 Shutting down server..."
     jobs -p | xargs -r kill
     exit 0
 }
@@ -23,28 +23,20 @@ cleanup() {
 # Set trap to cleanup on exit
 trap cleanup SIGINT SIGTERM
 
-# Start backend
-echo "📊 Starting FastAPI backend on http://localhost:8000..."
-cd backend
-python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000 &
-BACKEND_PID=$!
-cd ..
-
-# Wait a moment for backend to start
-sleep 2
-
 # Start frontend
 echo "🎨 Starting React frontend on http://localhost:5174..."
 npm run dev &
 FRONTEND_PID=$!
 
 echo ""
-echo "✅ Both servers are starting up..."
+echo "✅ Frontend server is starting up..."
 echo ""
-echo "📊 Backend:  http://localhost:8000"
 echo "🎨 Frontend: http://localhost:5174"
 echo ""
-echo "Press Ctrl+C to stop both servers"
+echo "📊 This version loads CSV data directly in the browser"
+echo "📁 Sample datasets are included, or upload your own CSV files"
+echo ""
+echo "Press Ctrl+C to stop the server"
 echo ""
 
 # Wait for background processes

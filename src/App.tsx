@@ -5,10 +5,9 @@ import ScatterChart from './components/ScatterChart'
 import ChartControls from './components/ChartControls'
 import DataManager from './components/DataManager'
 import type { DataPoint, ChartConfig } from './types'
-import axios from 'axios'
 import { binData, shouldUseBinning } from './utils/dataUtils'
-
-const API_BASE_URL = 'http://localhost:8000'
+import { loadSampleDataset, type CSVData, type CSVColumn } from './utils/csvLoader'
+import { calculateAxisLimits, shouldUseFixedLimits } from './utils/axisUtils'
 
 function App() {
   const [viewMode, setViewMode] = useState<'table' | 'chart'>('table')
@@ -32,7 +31,7 @@ function App() {
     animation_duration: 800,
     transition_duration: 1000
   })
-  const [columns, setColumns] = useState<any[]>([])
+  const [columns, setColumns] = useState<CSVColumn[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [animationIndex, setAnimationIndex] = useState(0)
@@ -86,39 +85,28 @@ function App() {
     return transformedData
   }
 
-  // Fetch available columns on component mount
+  // Load default dataset on component mount
   useEffect(() => {
-    fetchColumns()
+    loadDefaultDataset()
   }, [])
 
   // Update chart config when columns change
   useEffect(() => {
     if (columns.length > 0) {
       // Only update category and size columns based on column types
-      // X and Y columns are now set by fetchColumns using backend defaults
       const numericColumns = columns.filter(col => col.is_numeric)
       
       setChartConfig((prev: ChartConfig) => ({
         ...prev,
+        x_column: numericColumns[0]?.name || columns[0]?.name || 'x',
+        y_column: numericColumns[1]?.name || columns[1]?.name || 'y',
+        x_columns: [numericColumns[0]?.name || columns[0]?.name || 'x'],
+        y_columns: [numericColumns[1]?.name || columns[1]?.name || 'y'],
         category_column: columns.find(col => !col.is_numeric)?.name || undefined,
-        size_column: numericColumns[0]?.name || undefined
+        size_column: numericColumns[2]?.name || undefined
       }))
     }
   }, [columns])
-
-  // Fetch data when view mode changes or when columns are first loaded
-  useEffect(() => {
-    if (columns.length > 0) {
-      if (viewMode === 'table') {
-        fetchTableData()
-      } else {
-        // For chart view, only fetch raw data once, then transform locally
-        if (rawData.length === 0) {
-          fetchRawData()
-        }
-      }
-    }
-  }, [viewMode, columns])
 
   // Transform data for chart when config changes (enables smooth transitions)
   useEffect(() => {
@@ -180,84 +168,51 @@ function App() {
     }
   }, [])
 
-  const fetchColumns = async () => {
-    try {
-      setError(null)
-      const response = await axios.get(`${API_BASE_URL}/data/columns`)
-      setColumns(response.data.columns)
-      
-      // Update chart config with backend-provided defaults
-      if (response.data.first_column && response.data.second_column) {
-        setChartConfig((prev: ChartConfig) => ({
-          ...prev,
-          x_column: response.data.first_column,
-          y_column: response.data.second_column,
-          x_columns: [response.data.first_column],
-          y_columns: [response.data.second_column]
-        }))
-      }
-    } catch (err) {
-      const errorMsg = axios.isAxiosError(err) 
-        ? `Failed to fetch columns: ${err.message}` 
-        : 'Failed to fetch columns'
-      setError(errorMsg)
-      console.error('Error fetching columns:', err)
-    }
-  }
-
-  const fetchTableData = async () => {
+  const loadDefaultDataset = async () => {
     setLoading(true)
     setError(null)
     try {
-      const response = await axios.get(`${API_BASE_URL}/data/table`)
-      setData(response.data.data)
-      setRawData(response.data.data) // Also store as raw data
+      const csvData = await loadSampleDataset('comprehensive_business_data')
+      handleDataLoaded(csvData)
     } catch (err) {
-      const errorMsg = axios.isAxiosError(err) 
-        ? `Failed to fetch table data: ${err.message}` 
-        : 'Failed to fetch table data'
-      setError(errorMsg)
-      console.error('Error fetching table data:', err)
+      setError('Failed to load default dataset')
+      console.error('Error loading default dataset:', err)
     } finally {
       setLoading(false)
     }
   }
 
-  const fetchRawData = async () => {
-    setLoading(true)
+  const handleDataLoaded = (csvData: CSVData) => {
+    setColumns(csvData.columns)
+    setRawData(csvData.data)
+    setData(csvData.data) // Set data for table view
     setError(null)
-    try {
-      const response = await axios.get(`${API_BASE_URL}/data/table`)
-      setRawData(response.data.data)
-      // Transform immediately for chart view
-      const transformedData = transformDataForChart(response.data.data, chartConfig)
-      setData(transformedData)
-    } catch (err) {
-      const errorMsg = axios.isAxiosError(err) 
-        ? `Failed to fetch data: ${err.message}` 
-        : 'Failed to fetch data'
-      setError(errorMsg)
-      console.error('Error fetching raw data:', err)
-    } finally {
-      setLoading(false)
-    }
+    console.log('Data loaded:', csvData)
   }
 
   const handleConfigChange = (newConfig: Partial<ChartConfig>) => {
-    setChartConfig((prev: ChartConfig) => ({ ...prev, ...newConfig }))
+    setChartConfig((prev: ChartConfig) => {
+      const updatedConfig = { ...prev, ...newConfig };
+      
+      // Auto-calculate axis limits if fixed limits are enabled and we have data
+      if (updatedConfig.fixed_axis_limits && rawData.length > 0) {
+        const xColumns = updatedConfig.x_columns || [updatedConfig.x_column];
+        const yColumns = updatedConfig.y_columns || [updatedConfig.y_column];
+        
+        const { xLimits, yLimits } = calculateAxisLimits(rawData, xColumns, yColumns);
+        
+        updatedConfig.x_axis_min = xLimits.min;
+        updatedConfig.x_axis_max = xLimits.max;
+        updatedConfig.y_axis_min = yLimits.min;
+        updatedConfig.y_axis_max = yLimits.max;
+      }
+      
+      return updatedConfig;
+    });
     // Note: Chart data will be transformed automatically via useEffect
   }
 
-  const handleDataLoaded = () => {
-    // Refresh columns and data when new data is loaded
-    setRawData([]) // Clear cached raw data to force refetch
-    fetchColumns()
-    if (viewMode === 'table') {
-      fetchTableData()
-    } else {
-      fetchRawData()
-    }
-  }
+  // handleDataLoaded is now defined above and takes CSVData parameter
 
   return (
     <div className="app">
@@ -266,7 +221,6 @@ function App() {
         <div className="header-controls">
           <DataManager 
             onDataLoaded={handleDataLoaded}
-            apiBaseUrl={API_BASE_URL}
           />
           <div className="view-controls">
             <button 

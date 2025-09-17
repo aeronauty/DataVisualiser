@@ -23,6 +23,11 @@ export interface ChartConfig {
   animation_speed?: number // seconds per frame
   animation_duration?: number // milliseconds for chart transitions
   transition_duration?: number // milliseconds for smooth transitions between frames
+  fixed_axis_limits?: boolean // Whether to use fixed axis limits for multiple columns
+  x_axis_min?: number // Fixed minimum for X axis
+  x_axis_max?: number // Fixed maximum for X axis
+  y_axis_min?: number // Fixed minimum for Y axis
+  y_axis_max?: number // Fixed maximum for Y axis
 }
 
 export interface ColumnInfo {

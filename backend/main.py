@@ -145,13 +145,13 @@ current_data = generate_sample_data()
 async def root():
     return {"message": "Data Visualizer API is running"}
 
-@app.get("/data/sample")
+@app.get("/api/data/sample")
 async def get_sample_data():
     """Get sample data for visualization"""
     df = current_data.collect()
     return {"data": df.to_dicts()}
 
-@app.get("/data/table")
+@app.get("/api/data/table")
 async def get_table_data(limit: Optional[int] = None):
     """Get data in table format for AG Grid"""
     df = current_data
@@ -166,7 +166,7 @@ async def get_table_data(limit: Optional[int] = None):
         "total_rows": len(result)
     }
 
-@app.post("/data/chart")
+@app.post("/api/data/chart")
 async def get_chart_data(config: ChartConfig):
     """Get data formatted for charts based on configuration"""
     try:
@@ -221,7 +221,7 @@ async def get_chart_data(config: ChartConfig):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/data/columns")
+@app.get("/api/data/columns")
 async def get_available_columns():
     """Get available columns for chart configuration"""
     try:
@@ -255,7 +255,7 @@ async def get_available_columns():
             "second_column": "y"
         }
 
-@app.post("/data/upload")
+@app.post("/api/data/upload")
 async def upload_data(data: List[Dict[str, Any]]):
     """Upload new data (replace existing data)"""
     global current_data
@@ -275,7 +275,7 @@ async def upload_data(data: List[Dict[str, Any]]):
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error processing data: {str(e)}")
 
-@app.post("/data/upload-csv")
+@app.post("/api/data/upload-csv")
 async def upload_csv_file(file: UploadFile = File(...)):
     """Upload a CSV file and replace current data"""
     global current_data
@@ -344,7 +344,7 @@ async def upload_csv_file(file: UploadFile = File(...)):
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=f"Error processing CSV file: {str(e)}")
 
-@app.get("/data/sample-datasets")
+@app.get("/api/data/sample-datasets")
 async def get_sample_datasets():
     """Get list of available sample datasets"""
     datasets = [
@@ -369,7 +369,7 @@ async def get_sample_datasets():
     ]
     return {"datasets": datasets}
 
-@app.post("/data/load-sample/{dataset_name}")
+@app.post("/api/data/load-sample/{dataset_name}")
 async def load_sample_dataset(dataset_name: str):
     """Load a specific sample dataset"""
     global current_data
@@ -458,7 +458,7 @@ def generate_employee_data(num_points: int = 200) -> pl.LazyFrame:
     
     return pl.LazyFrame(data)
 
-@app.post("/data/filter")
+@app.post("/api/data/filter")
 async def filter_data(filters: Dict[str, Any]):
     """Apply filters to the data"""
     try:

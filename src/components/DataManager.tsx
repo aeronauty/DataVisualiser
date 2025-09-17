@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import axios from 'axios'
+import { loadCSVFromFile, loadSampleDataset, SAMPLE_DATASETS, type CSVData } from '../utils/csvLoader'
 
 interface Dataset {
   name: string
@@ -9,33 +9,21 @@ interface Dataset {
 }
 
 interface DataManagerProps {
-  onDataLoaded: () => void
-  apiBaseUrl: string
+  onDataLoaded: (data: CSVData) => void
 }
 
-const DataManager: React.FC<DataManagerProps> = ({ onDataLoaded, apiBaseUrl }) => {
-  const [availableDatasets, setAvailableDatasets] = useState<Dataset[]>([])
+const DataManager: React.FC<DataManagerProps> = ({ onDataLoaded }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showDataManager, setShowDataManager] = useState(false)
 
-  const fetchAvailableDatasets = async () => {
-    try {
-      const response = await axios.get(`${apiBaseUrl}/data/sample-datasets`)
-      setAvailableDatasets(response.data.datasets)
-    } catch (err) {
-      setError('Failed to fetch available datasets')
-      console.error(err)
-    }
-  }
-
-  const loadSampleDataset = async (datasetName: string) => {
+  const handleLoadSampleDataset = async (datasetName: string) => {
     setLoading(true)
     setError(null)
     try {
-      const response = await axios.post(`${apiBaseUrl}/data/load-sample/${datasetName}`)
-      console.log('Dataset loaded:', response.data)
-      onDataLoaded()
+      const csvData = await loadSampleDataset(datasetName)
+      console.log('Dataset loaded:', csvData)
+      onDataLoaded(csvData)
       setShowDataManager(false)
     } catch (err) {
       setError(`Failed to load dataset: ${datasetName}`)
@@ -53,28 +41,19 @@ const DataManager: React.FC<DataManagerProps> = ({ onDataLoaded, apiBaseUrl }) =
     setError(null)
     
     try {
-      console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type)
+      console.log('Loading file:', file.name, 'Size:', file.size, 'Type:', file.type)
       
-      const formData = new FormData()
-      formData.append('file', file)
-
-      const response = await axios.post(`${apiBaseUrl}/data/upload-csv`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      })
+      const csvData = await loadCSVFromFile(file)
       
-      console.log('File uploaded successfully:', response.data)
-      onDataLoaded()
+      console.log('File loaded successfully:', csvData)
+      onDataLoaded(csvData)
       setShowDataManager(false)
     } catch (err: any) {
-      console.error('Upload error:', err)
+      console.error('Load error:', err)
       
-      let errorMessage = 'Failed to upload file'
-      if (err.response?.data?.detail) {
-        errorMessage = err.response.data.detail
-      } else if (err.message) {
-        errorMessage = `Upload failed: ${err.message}`
+      let errorMessage = 'Failed to load file'
+      if (err.message) {
+        errorMessage = `Load failed: ${err.message}`
       }
       
       setError(errorMessage)
@@ -84,9 +63,6 @@ const DataManager: React.FC<DataManagerProps> = ({ onDataLoaded, apiBaseUrl }) =
   }
 
   const handleToggleDataManager = () => {
-    if (!showDataManager) {
-      fetchAvailableDatasets()
-    }
     setShowDataManager(!showDataManager)
   }
 
@@ -125,7 +101,7 @@ const DataManager: React.FC<DataManagerProps> = ({ onDataLoaded, apiBaseUrl }) =
               <div className="loading">Loading...</div>
             ) : (
               <div className="datasets-grid">
-                {availableDatasets.map((dataset) => (
+                {SAMPLE_DATASETS.map((dataset) => (
                   <div key={dataset.name} className="dataset-card">
                     <h5>{dataset.name.replace('_', ' ').toUpperCase()}</h5>
                     <p className="dataset-description">{dataset.description}</p>
@@ -138,7 +114,7 @@ const DataManager: React.FC<DataManagerProps> = ({ onDataLoaded, apiBaseUrl }) =
                       {dataset.columns.length > 4 && '...'}
                     </div>
                     <button 
-                      onClick={() => loadSampleDataset(dataset.name)}
+                      onClick={() => handleLoadSampleDataset(dataset.name)}
                       disabled={loading}
                       className="load-dataset-btn"
                     >

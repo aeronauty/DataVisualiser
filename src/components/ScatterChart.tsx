@@ -71,6 +71,9 @@ const ScatterChart: React.FC<ScatterChartProps> = ({ data, config }) => {
           {config.animation_enabled && (
             <span className="animation-indicator">🎬 Animating</span>
           )}
+          {config.fixed_axis_limits && (
+            <span className="fixed-limits-indicator">📏 Fixed Limits</span>
+          )}
         </h3>
         <div className="chart-config-info">
           <span>X: {config.x_column}</span>
@@ -96,6 +99,10 @@ const ScatterChart: React.FC<ScatterChartProps> = ({ data, config }) => {
             type="number" 
             dataKey="x" 
             name={config.x_column}
+            domain={config.fixed_axis_limits && config.x_axis_min !== undefined && config.x_axis_max !== undefined 
+              ? [config.x_axis_min, config.x_axis_max] 
+              : ['auto', 'auto']
+            }
             label={{ 
               value: config.x_column, 
               position: 'insideBottom', 
@@ -107,6 +114,10 @@ const ScatterChart: React.FC<ScatterChartProps> = ({ data, config }) => {
             type="number" 
             dataKey="y" 
             name={config.y_column}
+            domain={config.fixed_axis_limits && config.y_axis_min !== undefined && config.y_axis_max !== undefined 
+              ? [config.y_axis_min, config.y_axis_max] 
+              : ['auto', 'auto']
+            }
             label={{ 
               value: config.y_column, 
               angle: 0, 
