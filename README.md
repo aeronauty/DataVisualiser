@@ -1,301 +1,294 @@
 # Data Visualizer
 
-A full-stack data visualization application that enables you to create, receive, and visualize data with a Python backend using Polars LazyFrames and a React frontend with Recharts and AG Grid.
+A modern data visualization application that enables you to upload CSV files and create interactive charts directly in your browser. Built with React, TypeScript, and Recharts!
 
-## Features
+## ✨ Features
 
-### Frontend
-- **Dual View Mode**: Switch between table view (AG Grid) and interactive chart view (Recharts)
-- **Data Management**: Upload CSV files or load sample datasets
-- **Customizable Visualizations**: Configure scatter plots with different:
-  - X and Y axes
-  - Category grouping
-  - Point sizes
-  - Color coding
-- **Interactive Tables**: Full-featured data tables with sorting, filtering, and pagination
-- **Real-time Updates**: Chart configurations update visualizations instantly
+### 📊 Data Visualization
+- **Interactive Scatter Plots**: Create dynamic scatter plots with customizable axes
+- **Multi-Column Animation**: Select multiple columns for X or Y axes to create animated transitions
+- **Fixed Axis Limits**: Prevent chart jumping during animations with automatically calculated axis limits
+- **Category Grouping**: Color-code data points by categorical variables
+- **Size Mapping**: Map numeric columns to point sizes for bubble charts
+- **Smart Binning**: Automatically bin numeric categories for better visualization
 
-### Backend
-- **FastAPI**: High-performance Python web framework
-- **Polars LazyFrames**: Efficient data processing and manipulation
-- **Multiple Datasets**: Support for various sample datasets and CSV upload
-- **RESTful API**: Clean endpoints for data retrieval and configuration
-- **CORS Support**: Configured for frontend integration
+### 📋 Data Management
+- **CSV File Upload**: Drag and drop or select CSV files from your computer
+- **Sample Datasets**: 4 pre-loaded datasets with realistic business data
+- **Automatic Type Detection**: Intelligently detects numeric vs text columns
+- **Data Table View**: Browse your data in a sortable, filterable table
 
-### Sample Datasets
-The application includes several realistic sample datasets:
-- **Business Metrics**: Comprehensive business performance data (500 rows)
-- **Sales Data**: Sales performance by region, product, and time (300 rows)  
-- **Employee Metrics**: HR metrics including satisfaction and productivity (200 rows)
+### 🎬 Animation & Interaction
+- **Smooth Animations**: Configurable animation speed and transition duration
+- **Real-time Updates**: Chart updates instantly as you change settings
+- **Interactive Tooltips**: Hover over data points to see detailed information
+- **Responsive Design**: Works on desktop and mobile devices
 
-## Project Structure
+### 🔧 Advanced Features
+- **Fixed Axis Limits**: When multiple columns are selected, optionally fix axis limits to cover all data ranges
+- **Custom Hover Fields**: Select which data fields to display in tooltips
+- **Opacity Control**: Adjust point transparency for overlapping data
+- **Size Range Control**: Fine-tune bubble size ranges
 
-```
-DataVisualiser/
-├── backend/
-│   ├── main.py              # FastAPI application
-│   └── requirements.txt     # Python dependencies
-├── src/
-│   ├── components/
-│   │   ├── DataTable.tsx    # AG Grid table component
-│   │   ├── ScatterChart.tsx # Recharts visualization
-│   │   └── ChartControls.tsx # Chart configuration controls
-│   ├── types.ts             # TypeScript type definitions
-│   ├── App.tsx              # Main application component
-│   └── App.css              # Application styles
-├── .github/
-│   └── copilot-instructions.md # Development guidelines
-├── start.sh                 # Quick startup script (starts both servers)
-└── start-backend.sh         # Backend-only startup script
-```
-
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js (v18 or higher)
-- Python (v3.9 or higher) **[Updated: Now requires Python 3.9+ for latest NumPy 2.1+]**
+- Modern web browser
 
-### Quick Installation & Run
+### Installation & Run
 
-**The fastest way to get started:**
-
-1. **Clone and navigate to the project**
+1. **Clone the repository**
    ```bash
    git clone <repository-url>
    cd DataVisualiser
    ```
 
-2. **Install dependencies and start everything**
-   
-   **On macOS/Linux:**
+2. **Install dependencies**
    ```bash
    npm install
+   ```
+
+3. **Start the application**
+   ```bash
    ./start.sh
    ```
    
-   **On Windows:**
-   ```bash
-   npm install
-   npm run start:all
-   ```
-
-**What this does automatically:**
-- Install Python backend dependencies (via virtual environment on macOS/Linux)
-- Uses latest package versions including NumPy 2.1+, Polars 1.12+, FastAPI 0.115+
-- Start the FastAPI backend server on http://localhost:8000
-- Start the React frontend development server on http://localhost:5174
-- Handle graceful shutdown when you press Ctrl+C
-
-### Enterprise/Work Environment Notes
-
-If you're installing at work and encountering issues:
-
-1. **Corporate Firewall/Proxy**: You may need to configure pip to work with your corporate proxy:
-   ```bash
-   pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r backend/requirements.txt
-   ```
-
-2. **Package Version Conflicts**: The requirements.txt now uses latest versions. If you need older versions for compatibility:
-   ```bash
-   cd backend
-   pip install -r requirements.txt --force-reinstall
-   ```
-
-3. **Python Version**: Ensure you have Python 3.9+ for NumPy 2.1+ compatibility
-
-### Manual Installation
-
-If you prefer to install dependencies manually:
-
-1. **Install Frontend Dependencies**
-   ```bash
-   npm install
-   ```
-
-2. **Set up Python Virtual Environment and Install Backend Dependencies**
-   
-   **On macOS/Linux:**
-   ```bash
-   # Create a virtual environment
-   python -m venv .venv
-   
-   # Activate the virtual environment
-   source .venv/bin/activate
-   
-   # Install backend dependencies
-   cd backend
-   pip install -r requirements.txt
-   cd ..
-   ```
-   
-   **On Windows (Command Prompt):**
-   ```cmd
-   # Create a virtual environment
-   python -m venv .venv
-   
-   # Activate the virtual environment
-   .venv\Scripts\activate
-   
-   # Install backend dependencies
-   cd backend
-   pip install -r requirements.txt
-   cd ..
-   ```
-   
-   **On Windows (PowerShell):**
-   ```powershell
-   # Create a virtual environment
-   python -m venv .venv
-   
-   # Activate the virtual environment
-   .venv\Scripts\Activate.ps1
-   
-   # Install backend dependencies
-   cd backend
-   pip install -r requirements.txt
-   cd ..
-   ```
-
-   **Note:** The virtual environment needs to be activated each time you want to run the backend server manually. The startup scripts handle this automatically on macOS/Linux.
-
-## Running the Application
-
-### Option 1: Quick Start Script (Recommended)
-
-**On macOS/Linux:**
-```bash
-./start.sh
-```
-
-**On Windows:**
-```bash
-npm run start:all
-```
-
-This single command starts both servers and handles everything for you. Press `Ctrl+C` to stop both servers cleanly.
-
-### Option 2: Using NPM Scripts (Cross-platform)
-- **`npm run start:all`** - Start both frontend and backend servers simultaneously
-- **`npm run start:frontend`** - Start only the frontend development server (Vite)
-- **`npm run start:backend`** - Start only the backend server (FastAPI)
-
-### Option 3: Manual Server Startup
-
-1. **Start the Backend Server**
-   
-   **On macOS/Linux:**
-   ```bash
-   # Activate virtual environment first
-   source .venv/bin/activate
-   
-   # Start the server
-   cd backend
-   python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
-   ```
-   
-   **On Windows (Command Prompt):**
-   ```cmd
-   # Activate virtual environment first
-   .venv\Scripts\activate
-   
-   # Start the server
-   cd backend
-   python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
-   ```
-   
-   **On Windows (PowerShell):**
-   ```powershell
-   # Activate virtual environment first
-   .venv\Scripts\Activate.ps1
-   
-   # Start the server
-   cd backend
-   python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
-   ```
-
-2. **Start the Frontend Development Server** (in another terminal)
+   Or on Windows:
    ```bash
    npm run dev
    ```
 
-## Available Scripts
+4. **Open your browser**
+   - Navigate to `http://localhost:5174` (or the port shown in terminal)
+   - The application will automatically load with sample data
 
-### Quick Start
-- **`npm run start:all`** - **[RECOMMENDED for Windows]** Start both frontend and backend servers simultaneously
-- **`./start.sh`** - **[RECOMMENDED for macOS/Linux]** Start both servers with shell script
+## 📁 Project Structure
 
-### Development Scripts
-- **`npm run dev`** - Start only the frontend development server (Vite)
-- **`npm run build`** - Build the frontend for production
-- **`npm run preview`** - Preview the production build
-- **`npm run lint`** - Run ESLint on the codebase
-- **`npm run start:frontend`** - Start only the frontend development server
-- **`npm run start:backend`** - Start only the backend server (FastAPI)
+```
+DataVisualiser/
+├── src/
+│   ├── components/
+│   │   ├── DataTable.tsx         # Data table component
+│   │   ├── ScatterChart.tsx      # Interactive scatter plot
+│   │   ├── ChartControls.tsx     # Chart configuration panel
+│   │   ├── DataManager.tsx       # File upload and dataset management
+│   │   ├── MultiSelect.tsx       # Multi-column selection component
+│   │   ├── RangeSlider.tsx       # Range input component
+│   │   └── PerformanceWarning.tsx # Performance notifications
+│   ├── utils/
+│   │   ├── csvLoader.ts          # CSV parsing and loading utilities
+│   │   ├── dataUtils.ts          # Data transformation utilities
+│   │   ├── chartAnimator.ts      # Animation control utilities
+│   │   └── axisUtils.ts          # Axis limit calculation utilities
+│   ├── types/
+│   │   └── gif.d.ts              # Type definitions for GIF handling
+│   ├── types.ts                  # Main TypeScript type definitions
+│   ├── App.tsx                   # Main application component
+│   ├── App.css                   # Application styles
+│   └── main.tsx                  # Application entry point
+├── public/
+│   ├── sample-data/              # Pre-loaded CSV datasets
+│   │   ├── comprehensive-business-data.csv
+│   │   ├── business-metrics.csv
+│   │   └── employee-metrics.csv
+│   └── test_data.csv
+├── start.sh                      # Quick startup script
+└── test-puppeteer.js            # Automated testing script
+```
 
-## API Endpoints
+## 📊 Sample Datasets
 
-- `GET /` - API health check
-- `GET /data/sample` - Get sample data
-- `GET /data/table` - Get data formatted for table display
-- `POST /data/chart` - Get data formatted for charts with configuration
-- `GET /data/columns` - Get available columns and their types
-- `POST /data/upload` - Upload new dataset (JSON)
-- `POST /data/upload-csv` - Upload CSV file
-- `GET /data/sample-datasets` - Get list of available sample datasets
-- `POST /data/load-sample/{dataset_name}` - Load a specific sample dataset
-- `POST /data/filter` - Apply filters to data
+The application includes 4 sample datasets to get you started:
 
-## Usage
+### 1. Comprehensive Business Data (60+ rows)
+- **Columns**: 26 fields including revenue, profit, employees, customers, satisfaction scores
+- **Use Case**: Multi-dimensional business analysis with financial and operational metrics
+- **Animation**: Great for showing revenue vs profit across different time periods
 
-1. **Data Management**: 
-   - Click "Manage Data" to upload your own CSV files
-   - Or load one of the built-in sample datasets (Business Metrics, Sales Data, Employee Metrics)
-   
-2. **Table View**: View data in a sortable, filterable table format with AG Grid
+### 2. Business Metrics (25 rows)
+- **Columns**: Company, department, region, revenue, profit, employees by quarter
+- **Use Case**: Departmental performance comparison across regions
+- **Animation**: Compare different quarters or departments
 
-3. **Chart View**: 
-   - Select X and Y axes from available numeric columns
-   - Choose optional category column for grouping
-   - Configure size and color columns for enhanced visualizations
-   - Real-time updates as you modify settings
+### 3. Employee Metrics (21 rows)
+- **Columns**: Employee data with satisfaction, productivity, salary, performance ratings
+- **Use Case**: HR analytics and employee performance visualization
+- **Animation**: Explore relationships between satisfaction, productivity, and tenure
 
-## Sample Data Files
+### 4. Test Data (11 rows)
+- **Columns**: Simple employee dataset with name, age, salary, department
+- **Use Case**: Quick testing and learning the interface
+- **Animation**: Basic salary vs age analysis
 
-The `/sample-data` directory contains example CSV files you can use to test the upload functionality:
-- `business-metrics.csv` - Company performance data across departments and regions
-- `employee-metrics.csv` - HR data with salary, satisfaction, and performance metrics
+## 🎮 How to Use
 
-## Development
+### 1. Loading Data
+- **Upload CSV**: Click "Manage Data" → "Upload CSV File" → Select your file
+- **Sample Data**: Click "Manage Data" → Choose from 4 pre-loaded datasets
+- **Format**: CSV files with headers in the first row
+
+### 2. Table View
+- Browse your data in a structured table
+- Sort columns by clicking headers
+- View all data fields and types
+
+### 3. Chart View
+- **Basic Setup**:
+  - Select X and Y axes from numeric columns
+  - Choose optional category column for color grouping
+  - Set size column for bubble charts
+
+- **Multi-Column Animation**:
+  - Select multiple columns for X or Y axes
+  - Enable "Enable Animation" checkbox
+  - Adjust animation speed (0.5-10 seconds per frame)
+  - Configure transition duration (200-2000ms)
+
+- **Fixed Axis Limits**:
+  - When multiple columns are selected, enable "Fix Axis Limits"
+  - Prevents chart from jumping during animations
+  - Automatically calculates limits to cover all data ranges
+  - Shows current axis ranges in the control panel
+
+### 4. Advanced Configuration
+- **Hover Fields**: Select which data fields appear in tooltips
+- **Opacity**: Adjust point transparency (10-100%)
+- **Size Range**: Control bubble size limits (1-50 pixels)
+- **Category Bins**: For numeric categories, set number of bins (2-20)
+
+## 🛠️ Available Scripts
+
+- **`npm run dev`** - Start development server
+- **`npm run build`** - Build for production
+- **`npm run preview`** - Preview production build
+- **`npm run lint`** - Run ESLint
+- **`./start.sh`** - Quick start (macOS/Linux)
+
+## 🧪 Testing
+
+Run automated tests with Puppeteer:
+
+```bash
+npm install puppeteer --save-dev
+node test-puppeteer.js
+```
+
+This will:
+- Launch the application in a browser
+- Test data loading functionality
+- Verify chart rendering
+- Test data manager functionality
+- Take screenshots for verification
+
+## 🔧 Technical Details
 
 ### Frontend Technologies
-- React 18 with TypeScript
-- Vite for fast development and building
-- Recharts for data visualization
-- AG Grid for advanced table features
-- Axios for API communication
+- **React 18** with TypeScript for type safety
+- **Vite** for fast development and building
+- **Recharts** for interactive data visualization
+- **CSS3** for modern styling and animations
 
-### Backend Technologies
-- **FastAPI 0.115+** for the web framework
-- **Polars 1.12+** for high-performance data processing
-- **NumPy 2.1+** for numerical computing
-- **Pandas 2.2+** for data manipulation compatibility
-- **Pydantic 2.10+** for data validation
-- **Uvicorn 0.32+** for ASGI server
+### Data Processing
+- **Client-side CSV parsing** with automatic type detection
+- **Polars-inspired data transformations** in TypeScript
+- **Smart binning** for categorical data
+- **Real-time data filtering** and transformation
 
-### Type Safety
-The application uses TypeScript throughout with proper type definitions for:
-- Data points and chart configurations
-- API responses and requests
-- Component props and state
+### Performance Features
+- **Lazy loading** of large datasets
+- **Memoized components** to prevent unnecessary re-renders
+- **Efficient data structures** for smooth animations
+- **Performance warnings** for large datasets
 
-## Customization
+## 🎨 Customization
 
-You can extend the application by:
-- Adding new chart types in the ChartControls component
-- Implementing additional data processing endpoints
-- Adding more visualization options
-- Integrating with external data sources
+### Adding New Chart Types
+Extend the `ChartConfig` interface in `src/types.ts` and add new options in `ChartControls.tsx`.
 
-## License
+### Custom Data Sources
+Modify `src/utils/csvLoader.ts` to add support for other data formats (JSON, XML, APIs).
+
+### Styling
+Update `src/App.css` or add CSS modules for component-specific styling.
+
+### Animation Presets
+Add animation presets in `src/utils/chartAnimator.ts` for common visualization patterns.
+
+## 🚀 Deployment
+
+### Static Hosting
+Build and deploy to any static hosting service:
+
+```bash
+npm run build
+# Deploy the 'dist' folder to Netlify, Vercel, GitHub Pages, etc.
+```
+
+### Docker
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+EXPOSE 5174
+CMD ["npm", "run", "preview"]
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 CSV File Format
+
+Your CSV files should follow this format:
+
+```csv
+column1,column2,column3,category_column
+123.45,67.89,text_value,Category A
+234.56,78.90,another_value,Category B
+```
+
+**Requirements**:
+- First row must contain column headers
+- Numeric columns will be auto-detected for chart axes
+- Text columns can be used for categories
+- No special characters in column names (use underscores instead of spaces)
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**CSV not loading**:
+- Check that the first row contains headers
+- Ensure the file is properly formatted CSV
+- Try with a smaller file first
+
+**Chart not displaying**:
+- Verify you have numeric columns selected for X and Y axes
+- Check browser console for error messages
+- Ensure data contains valid numeric values
+
+**Animation not working**:
+- Select multiple columns for X or Y axes
+- Enable the "Enable Animation" checkbox
+- Check that selected columns contain numeric data
+
+**Performance issues**:
+- Use datasets under 1000 rows for best performance
+- Enable fixed axis limits to reduce calculation overhead
+- Reduce animation speed for smoother transitions
+
+## 📄 License
 
 This project is open source and available under the MIT License.
+
+---
+
+**Built with ❤️ using React, TypeScript, and Recharts**

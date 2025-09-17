@@ -7,7 +7,7 @@ import DataManager from './components/DataManager'
 import type { DataPoint, ChartConfig } from './types'
 import { binData, shouldUseBinning } from './utils/dataUtils'
 import { loadSampleDataset, type CSVData, type CSVColumn } from './utils/csvLoader'
-import { calculateAxisLimits, shouldUseFixedLimits } from './utils/axisUtils'
+import { calculateAxisLimits } from './utils/axisUtils'
 
 function App() {
   const [viewMode, setViewMode] = useState<'table' | 'chart'>('table')
@@ -34,7 +34,7 @@ function App() {
   const [columns, setColumns] = useState<CSVColumn[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [animationIndex, setAnimationIndex] = useState(0)
+  const [, setAnimationIndex] = useState(0)
   const [animationInterval, setAnimationInterval] = useState<NodeJS.Timeout | null>(null)
   const chartContainerRef = useRef<HTMLDivElement>(null)
 

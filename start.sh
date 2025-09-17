@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 # Data Visualizer Startup Script
 # Starts frontend-only CSV-based data visualizer
